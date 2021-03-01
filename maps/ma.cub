@@ -1,0 +1,17 @@
+R        900 900
+NO ../textures/bluestone.xpm
+SO ../textures/eagle.xpm
+WE ../textures/purplestone.xpm
+EA ../textures/wood.xpm
+S ../textures/pistol.xpm
+F 175,130,84
+C 27,77,184
+
+11111111111
+10000000001
+10000000001
+10002220001
+10002220001
+10000000001
+10000N00001
+11111111111
