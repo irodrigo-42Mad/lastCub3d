@@ -6,7 +6,7 @@
 /*   By: irodrigo <irodrigo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/12 14:09:30 by irodrigo          #+#    #+#             */
-/*   Updated: 2021/02/27 14:19:27 by irodrigo         ###   ########.fr       */
+/*   Updated: 2021/03/03 14:19:51 by irodrigo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,5 +45,6 @@
 # define MSG1_020	"Texture archive has put after read map data structure\n"
 # define MSG1_021	"Sprite texture has put after read map data structure\n"
 # define MSG1_022	"Color value has put after read map data structure\n"
+# define MSG1_023	"Map height or width dimension incorrect\n"
 
 #endif

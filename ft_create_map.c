@@ -6,7 +6,7 @@
 /*   By: irodrigo <irodrigo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/26 12:02:34 by irodrigo          #+#    #+#             */
-/*   Updated: 2021/02/26 14:47:46 by irodrigo         ###   ########.fr       */
+/*   Updated: 2021/03/15 13:29:13 by irodrigo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,41 +74,12 @@ void		ft_changetab(t_game_draw *mygame)
 			mygame->spr_total++;
 		i++;
 	}
-	mygame->sprite = malloc(mygame->spr_total * sizeof(t_sprite)); // todavia no dibujamos
-	//mygame->spr_total = 0;
+	mygame->sprite = malloc(mygame->spr_total * sizeof(t_sprite));
 }
-
-/*void		stringtoarray(t_game_draw *mygame)
-{
-	if (mygame->mapchar[mygame->n] == '8')
-	{
-		// ver como se puede dejar esto más corto.
-		mygame->worldmap[mygame->mtx.x][mygame->mtx.y++] = '9';
-		mygame->worldmap[mygame->mtx.x][mygame->mtx.y++] = '9';
-		mygame->worldmap[mygame->mtx.x][mygame->mtx.y++] = '9';
-		mygame->worldmap[mygame->mtx.x][mygame->mtx.y] = '9';
-	}
-	else if (mygame->mapchar[mygame->n] == '9')
-		mygame->worldmap[mygame->mtx.x][mygame->mtx.y] = '9';
-	else if (mygame->mapchar[mygame->n] == '\n' || mygame->mapchar[mygame->n] == '\0')
-	{
-		while (mygame->mtx.y <= get_width(mygame->mapchar))
-		{
-			mygame->worldmap[mygame->mtx.x][mygame->mtx.y] = '9';
-			mygame->mtx.y++;
-		}
-		mygame->n -= 1;
-	}
-	else
-		mygame->worldmap[mygame->mtx.x][mygame->mtx.y] = mygame->mapchar[mygame->n] - 48;
-	mygame->n++;
-	mygame->mtx.y++;
-}*/
 
 void		ft_create_matrix(t_game_draw *mygame)
 {
 	int line;
-	int colum;
 	int pos;
 	int mat_pos;
 	int dimen;
@@ -118,14 +89,15 @@ void		ft_create_matrix(t_game_draw *mygame)
 	dimen = 0;
 	pos = 0;
 	if (!mygame->worldmap)
-		if (!(mygame->worldmap = ft_calloc(mygame->map_dim.h, sizeof(char *))))
+		if (!(mygame->worldmap = (char **)malloc(sizeof(char *)
+			* mygame->map_dim.h + 1)))
 			return ;
 	while (line < mygame->map_dim.h && mygame->mapchar[pos])
 	{
-		if (line == 1 )
+		if (line == 1)
 			prueba = 1;
 		dimen = ft_get_line_width(mygame->mapchar, pos);
-		if (!(mygame->worldmap[line] = ft_calloc(dimen, sizeof(char *))))
+		if (!(mygame->worldmap[line] = (char *)malloc(sizeof(char) * dimen)))
 			return ;
 		mat_pos = 0;
 		while (mat_pos < (dimen) && mygame->mapchar[pos] != '\n')
@@ -147,10 +119,7 @@ int			ft_setmap_ch(t_game_draw *mygame, int mat_pos, int line, int pos)
 		|| mygame->mapchar[pos] == '2' || mygame->mapchar[pos] == '3')
 	{
 		if (mygame->mapchar[pos] == '3')
-		{
-			mygame->gamer.pos.x = mat_pos;
-			mygame->gamer.pos.y = line;
-		}
+			ft_setgamerpos(mygame, mat_pos, line);
 		mygame->worldmap[line][mat_pos] = mygame->mapchar[pos];
 	}
 	else if (mygame->mapchar[pos] == '9')
@@ -162,70 +131,26 @@ int			ft_setmap_ch(t_game_draw *mygame, int mat_pos, int line, int pos)
 			i++;
 			mat_pos++;
 		}
-	if(i == 4)
+	if (i == 4)
 		mat_pos--;
 	mat_pos++;
-	// revisar a ver que pasa cuando hay tabulaciones
 	return (mat_pos);
-
-/*	{
-		f->map[i][j] = (int)f->buff[k] - '0';
-		if (f->buff[k] == '2')
-			f->sprite_num++;
-	}
-	else if (f->buff[k] == ' ')
-		f->map[i][j] = 4;
-	else if ((f->buff[k] == 'N' || f->buff[k] == 'S' || f->buff[k] == 'E'
-		|| f->buff[k] == 'W') && f->dir == '\0')
-	{
-		f->map[i][j] = 0;
-		f->dir = f->buff[k];
-		f->pos[0] = i;
-		f->ml.pos.x = i + 0.5;
-		f->pos[1] = j;
-		f->ml.pos.y = j + 0.5;
-		ft_cast_init_dir(f);
-	}
-	else
-		ft_handle_error_ptr("ERROR IN MAP\n", (void *)f->map);*/
 }
 
+/*
+**Funcion que permite calcular el ancho de la linea actual
+*/
 
-
-
-	/*int pos;
-	int auxpos;
-	int line;
-	int act_line;
-	int pos_ini;
-	int pos_fin;
-
-
-	pos = 0;
-	auxpos = 0;
-	line = 0;
-	act_line = 0;
-
-	while(line < mygame->map_dim.h)
-	{
-		ft_get_line_width(*mygame->mapchar, &pos_ini, &pos_fin);
-		printf("%d",ft_get_line_tabs(*mygame->mapchar,pos_ini,pos_fin));
-		//pos_fin = pos + len;
-	}*/
-
-
-
-int		ft_get_line_width(char *mapchar, int pos)
+int			ft_get_line_width(char *mapchar, int pos)
 {
-	// funcion que permite calcular el ancho de la linea actual
 	int count;
 	int len;
 
 	count = 0;
 	len = 0;
-	while(mapchar[pos] != '\n')
+	while (mapchar[pos] != '\n')
 	{
-		if(mapchar[pos] == '8')
+		if (mapchar[pos] == '8')
 			count++;
 		len++;
 		pos++;
@@ -233,39 +158,3 @@ int		ft_get_line_width(char *mapchar, int pos)
 	count = (count * 4);
 	return (len + count + 1);
 }
-/*
-int get_line_tabs()
-{
-
-
-}*/
-
-
-/*void		matrix(t_game_draw *mygame)
-{
-
-	mygame->mtx.x = 0;
-	mygame->n = 0;
-	if (!mygame->worldmap)
-		if (!(mygame->worldmap = (char **)malloc(sizeof(char *) *
-			get_height(mygame->mapchar) + 1)))
-			return ;
-	mygame->worldmap = ft_split(mygame->mapchar, '\n');
-
-/*
-	while (mygame->mtx.x <= get_height(mygame->mapchar))
-	{
-		if (!(mygame->worldmap[mygame->mtx.x] = malloc(sizeof(int) *
-			(get_width(mygame->mapchar) + 1))))
-			return ;
-		mygame->mtx.y = 0;
-		while (mygame->mtx.y <= get_width(mygame->mapchar))
-		{
-			stringtoarray(mygame);
-			//printf("%d \t",mygame->worldmap[mygame->mtx.x][mygame->mtx.y]);
-		}
-		mygame->n++;
-		mygame->mtx.y = 0;
-		mygame->mtx.x++;
-	}
-}*/

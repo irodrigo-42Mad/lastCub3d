@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: irodrigo <irodrigo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/06/26 03:05:32 by jdiaz-co          #+#    #+#             */
-/*   Updated: 2021/02/26 23:53:23 by irodrigo         ###   ########.fr       */
+/*   Created: 2020/06/26 03:05:32 by irodrigo          #+#    #+#             */
+/*   Updated: 2021/03/14 00:10:48 by irodrigo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,107 +14,71 @@
 
 void		put_spr(t_game_draw *mygame)
 {
-	mygame->sprite[mygame->el_count].spr_texture.y = fabs((mygame->aux_elcount -
-		mygame->sprite[mygame->el_count].spr_initial.y) / (mygame->sprite[mygame->el_count].spr_dimens.h /
-		(double)mygame->tx.height[7]));
-	if (mygame->tx.wdata[7][mygame->sprite[mygame->el_count].spr_texture.y * mygame->tx.wsl[7] +
-		mygame->sprite[mygame->el_count].spr_texture.x * mygame->tx.wbpp[7] / 8] != 0)
-		ft_memcpy(mygame->canvas_ptr + (mygame->tx.wbpp[7] / 8) * mygame->win.w * mygame->aux_elcount +
-			mygame->segment * (mygame->tx.wbpp[7] / 8),
-			&mygame->tx.wdata[7][mygame->sprite[mygame->el_count].spr_texture.y * mygame->tx.wsl[7] +
-			mygame->sprite[mygame->el_count].spr_texture.x * mygame->tx.wbpp[7] / 8], sizeof(int));
-	mygame->aux_elcount++;
+	int				i;
+	int				d;
+	unsigned int	color;
 
-	/*mygame->sprite[mygame->el_count].spr_texture.y = fabs((mygame->aux_elcount -
-		mygame->sprite[mygame->el_count].spr_initial.y) / (mygame->sprite[mygame->el_count].spr_dimens.h /
-		(double)mygame->height[7]));
-	if (mygame->wdata[7][mygame->sprite[mygame->el_count].spr_texture.y * mygame->wsl[7] +
-		mygame->sprite[mygame->el_count].spr_texture.x * mygame->wbpp[7] / 8] != 0)
-		ft_memcpy(mygame->img_ptr + (mygame->wbpp[7] / 8) * mygame->win.w * mygame->aux_elcount +
-			mygame->segment * (mygame->wbpp[7] / 8),
-			&mygame->wdata[7][mygame->sprite[mygame->el_count].spr_texture.y * mygame->wsl[7] +
-			mygame->sprite[mygame->el_count].spr_texture.x * mygame->wbpp[7] / 8], sizeof(int));
-	mygame->aux_elcount++;
-	*/
+	i = mygame->draw_starty;
+	while (i < mygame->draw_endy)
+	{
+		d = (i) * 256 - mygame->win.h * 128 + mygame->spr_height * 128;
+		mygame->tex_y = ((d * mygame->tx.height[4]) / mygame->spr_height) / 256;
+		color = *(unsigned int *)(mygame->tx.wdata[4] +
+			(mygame->tex_y * mygame->tx.wsl[4] + mygame->tex_x *
+			(mygame->tx.wbpp[4] / 8)));
+		if ((color & 0x0FFFFFF) != 0)
+			ft_mlx_pixel_put(mygame, mygame->stripe, i, color);
+		i++;
+	}
 }
 
 void		dy(t_game_draw *mygame)
 {
-	mygame->segment = mygame->sprite[mygame->el_count].spr_initial.x - 1;
-	while (mygame->segment < mygame->sprite[mygame->el_count].spr_trace.x)
+	while (mygame->stripe < mygame->draw_endx)
 	{
-		mygame->sprite[mygame->el_count].spr_texture.x = (int)((mygame->segment -
-			mygame->sprite[mygame->el_count].spr_initial.x) / (mygame->sprite[mygame->el_count].spr_dimens.w /
-			(double)mygame->tx.width[7]));
-		mygame->aux_elcount = mygame->sprite[mygame->el_count].spr_initial.y;
-		if (mygame->sprite[mygame->el_count].transform.y > 0 && mygame->segment > 0 &&
-			mygame->segment < mygame->win.w
-			&& mygame->sprite[mygame->el_count].transform.y < mygame->zbuffer[mygame->segment])
-		{
-			while (mygame->aux_elcount < mygame->sprite[mygame->el_count].spr_trace.y)
-				put_spr(mygame);
-		}
-		mygame->segment++;
+		mygame->tex_x = (int)(256 * (mygame->stripe - (-mygame->spr_width / 2
+			+ mygame->scrnx)) * mygame->tx.width[4] / mygame->spr_width) / 256;
+		if (mygame->transformy > 0 && mygame->stripe > 0 && mygame->stripe <
+			mygame->win.w && mygame->transformy < mygame->zbuffer
+			[mygame->stripe])
+			put_spr(mygame);
+		mygame->stripe++;
 	}
-	mygame->obj = 0;
 }
 
 void		calc_transf(t_game_draw *mygame)
 {
-	double	inv_det;
 	double	calc_det;
 
-	calc_det = (mygame->rc.planex * mygame->rc.diry - mygame->rc.dirx * mygame->rc.planey);
-	inv_det = 1.0 / calc_det;
-	mygame->sprite[mygame->el_count].transform.x = inv_det * (mygame->rc.diry *
-		mygame->sprite[mygame->el_count].spr_pos.x - mygame->rc.dirx *
-		mygame->sprite[mygame->el_count].spr_pos.y);
-	mygame->sprite[mygame->el_count].transform.y = inv_det * (-mygame->rc.planey *
-		mygame->sprite[mygame->el_count].spr_pos.x + mygame->rc.planex *
-		mygame->sprite[mygame->el_count].spr_pos.y);
-	mygame->sprite[mygame->el_count].scrn = (int)((mygame->win.w / 2) *
-		(1 + mygame->sprite[mygame->el_count].transform.x /
-		mygame->sprite[mygame->el_count].transform.y));
-	mygame->sprite[mygame->el_count].spr_dimens.h = abs((int)(mygame->win.h /
-		mygame->sprite[mygame->el_count].transform.y));
-	mygame->sprite[mygame->el_count].spr_dimens.w = abs((int)(mygame->win.h /
-		mygame->sprite[mygame->el_count].transform.y));
-
-	/*calc_det = (mygame->plane.x * mygame->dir.y - mygame->dir.x * mygame->plane.y);
-	inv_det = 1.0 / calc_det;
-	mygame->sprite[mygame->el_count].transform.x = inv_det * (mygame->dir.y *
-		mygame->sprite[mygame->el_count].spr_pos.x - mygame->dir.x *
-		mygame->sprite[mygame->el_count].spr_pos.y);
-	mygame->sprite[mygame->el_count].transform.y = inv_det * (-mygame->plane.y *
-		mygame->sprite[mygame->el_count].spr_pos.x + mygame->plane.x *
-		mygame->sprite[mygame->el_count].spr_pos.y);
-	mygame->sprite[mygame->el_count].scrn = (int)((mygame->win.w / 2) *
-		(1 + mygame->sprite[mygame->el_count].transform.x /
-		mygame->sprite[mygame->el_count].transform.y));
-	mygame->sprite[mygame->el_count].spr_dimens.h = abs((int)(mygame->win.h /
-		mygame->sprite[mygame->el_count].transform.y));
-	mygame->sprite[mygame->el_count].spr_dimens.w = abs((int)(mygame->win.h /
-		mygame->sprite[mygame->el_count].transform.y));*/
+	calc_det = (mygame->rc.planex * mygame->rc.diry -
+		mygame->rc.dirx * mygame->rc.planey);
+	mygame->inv_det = 1.0 / calc_det;
+	mygame->transformx = mygame->inv_det * (mygame->rc.diry *
+		mygame->spritex - mygame->rc.dirx * mygame->spritey);
+	mygame->transformy = mygame->inv_det * (-mygame->rc.planey *
+		mygame->spritex + mygame->rc.planex *
+		mygame->spritey);
+	mygame->scrnx = (int)((mygame->win.w / 2) * (1 +
+		mygame->transformx / mygame->transformy));
+	mygame->spr_height = abs((int)(mygame->win.h / mygame->transformy));
+	mygame->draw_starty = -mygame->spr_height / 2 + mygame->win.h / 2;
+	mygame->draw_endy = mygame->spr_height / 2 + mygame->win.h / 2;
+	if (mygame->draw_starty < 0)
+		mygame->draw_starty = 0;
+	if (mygame->draw_endy >= mygame->win.h)
+		mygame->draw_endy = mygame->win.h - 1;
 }
 
-void		calc_sprite_place(t_game_draw *mygame)
+void		calc_transf2(t_game_draw *mygame)
 {
-	mygame->sprite[mygame->el_count].spr_initial.y = -mygame->sprite[mygame->el_count].spr_dimens.h / 2 +
-		mygame->win.h / 2;
-	if (mygame->sprite[mygame->el_count].spr_initial.y < 0)
-		mygame->sprite[mygame->el_count].spr_initial.y = 0;
-	mygame->sprite[mygame->el_count].spr_trace.y = mygame->sprite[mygame->el_count].spr_dimens.h / 2 +
-		mygame->win.h / 2;
-	if (mygame->sprite[mygame->el_count].spr_trace.y >= mygame->win.h)
-		mygame->sprite[mygame->el_count].spr_trace.y = mygame->win.h - 1;
-	mygame->sprite[mygame->el_count].spr_initial.x = -1 * mygame->sprite[mygame->el_count].spr_dimens.w / 2 +
-		mygame->sprite[mygame->el_count].scrn;
-	if (mygame->sprite[mygame->el_count].spr_initial.x < 0)
-		mygame->sprite[mygame->el_count].spr_initial.x = 0;
-	mygame->sprite[mygame->el_count].spr_trace.x = mygame->sprite[mygame->el_count].spr_dimens.w / 2 +
-		mygame->sprite[mygame->el_count].scrn;
-	if (mygame->sprite[mygame->el_count].spr_trace.x >= mygame->win.w)
-		mygame->sprite[mygame->el_count].spr_trace.x = mygame->win.w - 1;
+	mygame->spr_width = abs((int)(mygame->win.h / mygame->transformy));
+	mygame->draw_startx = -mygame->spr_width / 2 + mygame->scrnx;
+	mygame->draw_endx = mygame->spr_width / 2 + mygame->scrnx;
+	if (mygame->draw_startx < 0)
+		mygame->draw_startx = 0;
+	if (mygame->draw_endx >= mygame->win.w)
+		mygame->draw_endx = mygame->win.w - 1;
+	mygame->stripe = mygame->draw_startx;
 }
 
 void		raysprite(t_game_draw *mygame)
@@ -122,12 +86,12 @@ void		raysprite(t_game_draw *mygame)
 	mygame->el_count = 0;
 	while (mygame->el_count < mygame->spr_total)
 	{
-		mygame->sprite[mygame->el_count].spr_pos.x =
-			mygame->sprite[mygame->allspr_pos[mygame->el_count]].sp_act_pos.x - mygame->rc.posx;
-		mygame->sprite[mygame->el_count].spr_pos.y =
-			mygame->sprite[mygame->allspr_pos[mygame->el_count]].sp_act_pos.y - mygame->rc.posy;
+		mygame->spritex = mygame->sprite[mygame->el_count].spr_pos.x -
+		(mygame->rc.posx - 0.5);
+		mygame->spritey = mygame->sprite[mygame->el_count].spr_pos.y -
+		(mygame->rc.posy - 0.5);
 		calc_transf(mygame);
-		calc_sprite_place(mygame);
+		calc_transf2(mygame);
 		dy(mygame);
 		mygame->el_count++;
 	}

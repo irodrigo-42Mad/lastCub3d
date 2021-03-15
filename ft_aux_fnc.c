@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_aux_fnc.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: irodrigo <irodrigo@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/10 13:55:28 by irodrigo          #+#    #+#             */
+/*   Updated: 2021/03/13 23:24:22 by irodrigo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int		ft_atoi_cub(char *line, int *pos)
@@ -13,44 +25,3 @@ int		ft_atoi_cub(char *line, int *pos)
 	}
 	return (num);
 }
-
-void		ft_freemap(t_game_draw *mygame)
-{
-	int		pos;
-
-	pos = -1;
-	while (mygame->worldmap[++pos] != NULL)
-	{
-		free(mygame->worldmap[pos]);
-		mygame->worldmap[pos] = NULL;
-	}
-	free(mygame->worldmap);
-	mygame->worldmap = NULL;
-}
-
-void		ft_fretable(char **fra)
-{
-	int		pos;
-
-	pos = -1;
-	while (fra[++pos] != NULL)
-	{
-		free(fra[pos]);
-		fra[pos] = NULL;
-	}
-	free(fra[pos]);
-	fra[pos] = NULL;
-	free(fra);
-	fra = NULL;
-}
-
-	//while (map->mapa[x] != NULL)
-		//map->mapa);
-	//map->mapa = NULL;
-
-		//free(map->mapa[x]);
-		//map->mapa[x] = NULL;
-		//x++;
-
-
-
